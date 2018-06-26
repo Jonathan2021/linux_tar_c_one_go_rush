@@ -1,5 +1,7 @@
 //#include <filesystem> //c++17
+#include <iterator>
 #include <fstream>
+#include <dirent.h>
 #include <sstream>
 #include <grp.h>
 #include <stdlib.h> 
@@ -13,6 +15,8 @@
 #include <string>
 #include <cstring>
 #include "header.hpp"
+#include <vector>
+using namespace std;
 
 void initiate_header(Header* header)
 {
@@ -27,9 +31,12 @@ void add_name(Header* header, string name)
 		strcpy(header->file_name, name.c_str());
 }
 
-void add_file_mode(Header* header)
+void add_file_mode(Header* header, struct stat* buff)
 {
-	sprintf(header->file_mod,"%07o",0644);
+	  if(buff->st_mode & S_IFDIR)
+                 sprintf(header->file_mod,"%07o",0775);
+        if(buff->st_mode & S_IFREG)
+                sprintf(header->file_mod,"%07o",0644);
 }
 
 void add_user_id(Header* header, struct stat* buff)
@@ -107,14 +114,14 @@ void get_goup_name(Header* header, struct stat* buf)
 	strcpy(header->group_name, grp->gr_name);
 }
 
-void make_header(char* filename, Header* header)
+void make_header(const char* filename, Header* header)
 {
 	struct stat buff;
 	stat(filename, &buff);
 	struct stat* cur_stat = &buff;
 	initiate_header(header);	
 	add_name(header, string(filename));
-	add_file_mode(header);		
+	add_file_mode(header, cur_stat);		
 	add_user_id(header, cur_stat);
 	add_group_id(header, cur_stat);
 	add_size(header, cur_stat);
@@ -135,7 +142,7 @@ off_t add_at_end(off_t size)
 	return re;	
 }
 
-void write_file(char* out_file, char* in_file)
+void write_file(char* out_file, const char* in_file)
 {
 	ifstream infile;
 	infile.open(in_file);
@@ -161,14 +168,57 @@ void write_file(char* out_file, char* in_file)
 		outfile.close();	
 	}	
 }
+void read_directory(string cur_dir, vector<string>& v)
+{
+	DIR* dirp= opendir(cur_dir.c_str());
+	struct dirent* dp;
+	v.push_back(cur_dir);
+	if (dirp == NULL)
+	{
+		cerr << "opendir: Path doesn't exist or couldn't be read" << endl;
+	}
+	string add_name;
+	while ((dp = readdir(dirp)) != NULL)
+	{
+		add_name = string(dp->d_name);
+		if( add_name!= "." && add_name != "..")
+		{
+			if(dp->d_type == DT_DIR)
+			{
+				read_directory((cur_dir + add_name + "/"), v);
+			}
+			else
+			{
+				v.push_back(cur_dir +  add_name);
+			}
+		}
+	}
+	closedir(dirp);
+}
 
 int main(int argc, char** argv)
 {
 	if(argc>2)
 	{
+		string file_argv;
+		vector<string> v;
 		for(int i = 2; i< argc; ++i)
-		{
-			write_file(argv[1], argv[i]);
+		{ 
+			v.clear();
+			file_argv = string(argv[i]);
+			if(argv[i][(file_argv.size()-1)] == '/' || (file_argv.size() == 1 && argv[i][0]== '.'))
+			{
+				cout << "I recognized a Directory" << file_argv <<  endl;
+				read_directory(file_argv, v);
+				for(size_t j =0 ; j< v.size(); ++j)
+				{
+			//		cout << v.at(0) << endl;
+					write_file(argv[1], v.at(j).c_str());
+				}
+					 
+			}
+			else
+				write_file(argv[1], argv[i]);
 		}
 		ofstream outfile;
 		outfile.open(argv[1], ios::app);
