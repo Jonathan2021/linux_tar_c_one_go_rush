@@ -4,6 +4,7 @@
 #include <vector>
 #include "create.hpp"
 #include "extract.hpp"
+#include "concatenate.hpp"
 #include <stdio.h>
 #include <string.h>
 
@@ -21,17 +22,21 @@ void missing()
 {
 	 cout <<"tar: Must specify one of -c, -r, -t, -u, -x"<<endl;
 }
+
 int main (int argc, char *argv[])
 {
 
 if (argc >1) {
 	int extract_bool = 0;
 	int create_bool = 0;
+	int catenate_bool = 0;
 	int i = 1;
+	int wait_f_cat = 0;
 	int wait_f_ex = 0;
 	int wait_f_creat = 0;
 	while (i<argc && argv[i][0] == '-')
 	{
+		
 		if (!strcmp(argv[i], "--version")) 
 		{
 			version();
@@ -39,6 +44,14 @@ if (argc >1) {
 		else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-?")) 
 		{
 			help();
+		}
+		else if (!strcmp(argv[i], "-Af"))
+		{
+			catenate_bool = 1;
+		}
+		else if (!strcmp(argv[i], "--catenate") || !strcmp(argv[i], "-A") || !strcmp(argv[i], "--concatenate"))
+		{
+			wait_f_cat = 1;	
 		}
 		else if (!strcmp(argv[i], "-xf"))
 		{
@@ -63,9 +76,13 @@ if (argc >1) {
 			{
 				extract_bool = 1;
 			}
-			else if (wait_f_creat)
+			if (wait_f_creat)
 			{
 				create_bool = 1;
+			}
+			if(wait_f_cat)
+			{
+				catenate_bool = 1;
 			}
 		}
 		else 
@@ -76,12 +93,21 @@ if (argc >1) {
 	}
 	if (i<argc)
 	{
-		if(extract_bool)
+		if (catenate_bool + extract_bool + create_bool > 1)
+		{
+			cout <<"casting incompatible actions" << endl;
+		}
+		else if(extract_bool)
 		{
 			extract(argc, argv, i);
 		}
 		else if (create_bool)
 			create(argc, argv, i);
+		else if (catenate_bool && i+1<argc)
+		{
+			concatenate(argc, argv, i);
+		}
+			
 	}
 }
 return 0;
