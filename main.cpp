@@ -6,6 +6,7 @@
 #include "extract.hpp"
 #include "concatenate.hpp"
 #include "append.hpp"
+#include "compare.hpp"
 #include <stdio.h>
 #include <string.h>
 
@@ -31,7 +32,9 @@ if (argc >1) {
 	int create_bool = 0;
 	int catenate_bool = 0;
 	int append_bool = 0;
+	int compare_bool = 0;
 	int i = 1;
+	int wait_f_comp = 0;
 	int wait_f_cat = 0;
 	int wait_f_ex = 0;
 	int wait_f_creat = 0;
@@ -51,6 +54,11 @@ if (argc >1) {
 		{
 			append_bool = 1;
 		}
+		else if (!strcmp(argv[i], "-df"))
+                {
+                        compare_bool = 1;
+                }
+
 		else if (!strcmp(argv[i], "-Af"))
 		{
 			catenate_bool = 1;
@@ -59,6 +67,11 @@ if (argc >1) {
 		{
 			wait_f_cat = 1;	
 		}
+		else if (!strcmp(argv[i], "--diff") || !strcmp(argv[i], "-d") || !strcmp(argv[i], "--compare"))
+                {
+                        wait_f_comp = 1;
+                }
+
 		else if(!strcmp(argv[i], "--append") || !strcmp(argv[i], "-r"))
 		{
 			wait_f_app = 1;
@@ -98,6 +111,8 @@ if (argc >1) {
 			{
 				append_bool = 1;
 			}
+			if(wait_f_comp)
+				compare_bool = 1;
 		}
 		else 
 		{
@@ -107,7 +122,7 @@ if (argc >1) {
 	}
 	if (i<argc)
 	{
-		if (catenate_bool + extract_bool + create_bool + append_bool> 1)
+		if (catenate_bool + extract_bool + create_bool + append_bool + compare_bool> 1)
 		{
 			cout <<"casting incompatible actions" << endl;
 		}
@@ -124,6 +139,10 @@ if (argc >1) {
 		else if (append_bool && i+1 < argc)
 		{
 			append(argc, argv, i);
+		}
+		else if (compare_bool)
+		{
+			compare(argc, argv, i);
 		}
 			
 	}

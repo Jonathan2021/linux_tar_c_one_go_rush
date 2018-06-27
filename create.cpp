@@ -34,9 +34,9 @@ void add_name(Header* header, string name)
 void add_file_mode(Header* header, struct stat* buff)
 {
 	  if(buff->st_mode & S_IFDIR)
-                 sprintf(header->file_mod,"%07o",0775);
+                 sprintf(header->file_mod,"%07o",buff->st_mode);
         if(buff->st_mode & S_IFREG)
-                sprintf(header->file_mod,"%07o",0644);
+                sprintf(header->file_mod,"%07o",buff->st_mode);
 }
 
 void add_user_id(Header* header, struct stat* buff)

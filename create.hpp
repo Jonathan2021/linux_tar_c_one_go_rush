@@ -6,6 +6,7 @@
 #include "header.hpp"
 
 using namespace std;
+void write_file(char* out_file, const char* in_file);
 void create(int argc, char* argv[], int position);
 void read_directory(string cur_dir, vector<string>& v);
 void make_header(const char* filename, Header* header);

@@ -76,7 +76,7 @@ int file_in_argv(string file_name, int argc, char* argv[])
 	{
 		if (strcmp(argv[i], file_name.c_str()) == 0)
 		{
-			return 1;
+			return i;
 		}
 	}
 	return 0;
