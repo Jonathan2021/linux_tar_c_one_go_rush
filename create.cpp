@@ -196,7 +196,7 @@ void read_directory(string cur_dir, vector<string>& v)
 	closedir(dirp);
 }
 
-int main(int argc, char** argv)
+void create(int argc, char** argv)
 {
 	if(argc>2)
 	{
