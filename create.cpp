@@ -53,9 +53,16 @@ void add_group_id(Header* header, struct stat* buff)
 
 void add_size(Header* header, struct stat* buff)
 {
-	off_t size = buff->st_size;
-	header->size = size;
-	sprintf(header->file_size,"%011o", (unsigned int)size);
+	if(buff->st_mode & S_IFDIR)
+	{
+              	sprintf(header->file_size,"%011o", 0);
+	}
+        else if(buff->st_mode & S_IFREG)
+	{
+		off_t size = buff->st_size;
+		header->size = size;
+		sprintf(header->file_size,"%011o", (unsigned int)size);
+	}
 }
 
 
@@ -196,37 +203,33 @@ void read_directory(string cur_dir, vector<string>& v)
 	closedir(dirp);
 }
 
-void create(int argc, char** argv)
+void create(int argc, char** argv, int pos)
 {
-	if(argc>2)
-	{
+
 		string file_argv;
 		vector<string> v;
-		for(int i = 2; i< argc; ++i)
+		for(int i = pos+1; i< argc; ++i)
 		{ 
 			v.clear();
 			file_argv = string(argv[i]);
 			if(argv[i][(file_argv.size()-1)] == '/' || (file_argv.size() == 1 && argv[i][0]== '.'))
 			{
-				cout << "I recognized a Directory" << file_argv <<  endl;
 				read_directory(file_argv, v);
 				for(size_t j =0 ; j< v.size(); ++j)
 				{
-			//		cout << v.at(0) << endl;
-					write_file(argv[1], v.at(j).c_str());
+					write_file(argv[pos], v.at(j).c_str());
 				}
 					 
 			}
 			else
-				write_file(argv[1], argv[i]);
+				write_file(argv[pos], argv[i]);
 		}
 		ofstream outfile;
-		outfile.open(argv[1], ios::app);
+		outfile.open(argv[pos], ios::app);
 		for(size_t i = 0 ; i< 1024; ++i)
 		{
 			outfile << '\0';
 		}	
 		outfile.close();
-	}
 }
 

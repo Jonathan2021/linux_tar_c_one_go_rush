@@ -23,10 +23,10 @@ void copyFile(string src, string dst){
 }
 */
 
-void get_tar(string filename, string& str){
+void get_tar(char filename[], string& str){
     str.clear();
     ifstream infile;
-	infile.open(filename.c_str());
+	infile.open(filename);
     if (infile)
     {
 	char c;
@@ -45,7 +45,7 @@ string clean_content(char* cur_char, size_t stop){
     return clean;
 }
 
-size_t get_size(const char* filename) {
+size_t get_size(char* filename) {
     struct stat st;
     if(stat(filename, &st) != 0) {
         return 0;
@@ -58,12 +58,14 @@ int char_to_int(char c){
 }
 
 size_t oct_to_dec(string oct){
-    size_t dec = 0;
+    	//cout << "oct: " << oct << endl;
+	size_t dec = 0;
     size_t power = 1;
     for (int i = oct.length() - 1; i >= 0; --i){
         dec += power * char_to_int(oct[i]);
         power *= 8;
     }
+	//cout << "dec : " << dec << endl;
     return dec;
 }
 
@@ -111,18 +113,23 @@ void make_file(string file_name, string tar_content, size_t file_number, size_t 
 	}
 	outfile.close();
 }
-void extract(string tar, int argc, char* argv[]){
+void extract(int argc, char* argv[], int position){
     	size_t pos;
 	string tar_content = "";
-    	get_tar(tar, tar_content);
+    	get_tar(argv[position], tar_content);
 	vector<string> directories;
-	int done = 3;
-    	size_t tarsize = get_size(tar.c_str()) - 1024;
+	int done = 0;
+    	size_t tarsize = get_size(argv[position]) - 1024;
     	for(size_t file_number =0 ; file_number<tarsize;)
 	{
+	//	cout << "file number : " << file_number << endl;
+	//	cout << tar_content[file_number] << tar_content[file_number +1] << endl;
         	string file_name = clean_content(&tar_content[file_number], 100);
+	//	cout << "file name: " << file_name << endl;
+	//	size_t file_size = (tar_content[file_number + 156] == '5') ? 0 : oct_to_dec(clean_content(&tar_content[file_number + 124], 12));
 		size_t file_size = oct_to_dec(clean_content(&tar_content[file_number + 124], 12));
-		if (argc > 3 && done<argc)
+
+		if (done<argc - (position + 1 ))
 		{
 			if (file_in_argv(file_name, argc, argv))
 			{
@@ -142,7 +149,7 @@ void extract(string tar, int argc, char* argv[]){
 				done +=1;
 			}
 		}
-		else if (argc<=3)
+		else if (argc<= (position + 1))
 		{
 			if(file_name[file_name.size()-1] == '/')
 			{
@@ -159,12 +166,4 @@ void extract(string tar, int argc, char* argv[]){
 			file_number += 512;
 	    		file_number += (((file_size % 512) == 0)? file_size : file_size + 512 - (file_size % 512));
 	}
-}
-int main(int argc, char* argv[])
-{
-	if (argc>2)
-	{
-		extract(string(argv[2]), argc, argv);
-	}
-	return 0;
 }
