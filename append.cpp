@@ -43,13 +43,17 @@ void append(int argc, char* argv[], int pos)
 				write_file(argv[pos], argv[i]);
 			}
 		}
-		for(size_t j = 0; j<1024; ++j)
-        	{
-                	out_file << '\0';
+		out_file.open(argv[pos], ios::app);
+		if(out_file)
+		{
+			for(size_t j = 0; j<1024; ++j)
+        		{
+                		out_file << '\0';
+        		}
         	}
-
-        }
+	}
 	out_file.close();
+
 }
 
 
