@@ -7,6 +7,7 @@
 #include "concatenate.hpp"
 #include "append.hpp"
 #include "compare.hpp"
+#include "list.hpp"
 #include <stdio.h>
 #include <string.h>
 
@@ -33,12 +34,14 @@ if (argc >1) {
 	int catenate_bool = 0;
 	int append_bool = 0;
 	int compare_bool = 0;
+	int list_bool = 0;
 	int i = 1;
 	int wait_f_comp = 0;
 	int wait_f_cat = 0;
 	int wait_f_ex = 0;
 	int wait_f_creat = 0;
 	int wait_f_app = 0;
+	int wait_f_list = 0;
 	while (i<argc && argv[i][0] == '-')
 	{
 		
@@ -58,7 +61,10 @@ if (argc >1) {
                 {
                         compare_bool = 1;
                 }
-
+		else if (!strcmp(argv[i], "-tf"))
+                {
+                        list_bool = 1;
+                }
 		else if (!strcmp(argv[i], "-Af"))
 		{
 			catenate_bool = 1;
@@ -76,6 +82,10 @@ if (argc >1) {
 		{
 			wait_f_app = 1;
 		}
+		else if(!strcmp(argv[i], "--list") || !strcmp(argv[i], "-t"))
+                {
+                        wait_f_list = 1;
+                }
 		else if (!strcmp(argv[i], "-xf"))
 		{
 			extract_bool = 1;
@@ -113,6 +123,10 @@ if (argc >1) {
 			}
 			if(wait_f_comp)
 				compare_bool = 1;
+			if(wait_f_list)
+				list_bool = 1;
+			else
+				cout << "-f feels lonely" << endl;
 		}
 		else 
 		{
@@ -122,7 +136,7 @@ if (argc >1) {
 	}
 	if (i<argc)
 	{
-		if (catenate_bool + extract_bool + create_bool + append_bool + compare_bool> 1)
+		if (list_bool +catenate_bool + extract_bool + create_bool + append_bool + compare_bool> 1)
 		{
 			cout <<"casting incompatible actions" << endl;
 		}
@@ -144,7 +158,10 @@ if (argc >1) {
 		{
 			compare(argc, argv, i);
 		}
-			
+		else if (list_bool)
+		{
+			list(argc, argv, i);
+		}
 	}
 }
 return 0;
