@@ -8,6 +8,35 @@
 #include <vector>
 
 using namespace std;
+void append(char tar_name[], string file)
+{
+        size_t in_size;
+        string cur_argv;
+        vector<string> v;
+        string cur_s = "";
+        string res = "";
+        get_tar(tar_name, cur_s);
+        in_size = get_size(tar_name);
+        res+= cur_s.substr(0,in_size-1024);
+        ofstream out_file;
+        out_file.open(tar_name, ios::trunc);
+        if(out_file)
+        {
+		
+                out_file.write(res.c_str(), res.length());
+                out_file.close();
+                write_file(tar_name, file.c_str());
+                out_file.open(tar_name, ios::app);
+                if(out_file)
+                { 
+                        for(size_t j = 0; j<1024; ++j)
+                        {
+                                out_file << '\0';
+                        }
+                }
+		out_file.close();
+        }
+}
 
 void append(int argc, char* argv[], int pos)
 {

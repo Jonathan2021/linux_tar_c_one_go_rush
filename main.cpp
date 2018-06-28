@@ -7,6 +7,7 @@
 #include "concatenate.hpp"
 #include "append.hpp"
 #include "compare.hpp"
+#include "update.hpp"
 #include "list.hpp"
 #include <stdio.h>
 #include <string.h>
@@ -29,6 +30,7 @@ void missing()
 int main (int argc, char *argv[])
 {
 if (argc >1) {
+	int update_bool = 0;
 	int extract_bool = 0;
 	int create_bool = 0;
 	int catenate_bool = 0;
@@ -36,6 +38,7 @@ if (argc >1) {
 	int compare_bool = 0;
 	int list_bool = 0;
 	int i = 1;
+	int wait_f_up = 0;
 	int wait_f_comp = 0;
 	int wait_f_cat = 0;
 	int wait_f_ex = 0;
@@ -57,6 +60,10 @@ if (argc >1) {
 		{
 			append_bool = 1;
 		}
+		else if (!strcmp(argv[i], "-uf"))
+                {
+                        update_bool = 1;
+                }
 		else if (!strcmp(argv[i], "-df"))
                 {
                         compare_bool = 1;
@@ -82,6 +89,10 @@ if (argc >1) {
 		{
 			wait_f_app = 1;
 		}
+		else if(!strcmp(argv[i], "--update") || !strcmp(argv[i], "-u"))
+                {
+                        wait_f_up = 1;
+                }
 		else if(!strcmp(argv[i], "--list") || !strcmp(argv[i], "-t"))
                 {
                         wait_f_list = 1;
@@ -125,6 +136,8 @@ if (argc >1) {
 				compare_bool = 1;
 			if(wait_f_list)
 				list_bool = 1;
+			if(wait_f_up)
+				update_bool = 1;
 			else
 				cout << "-f feels lonely" << endl;
 		}
@@ -161,6 +174,10 @@ if (argc >1) {
 		else if (list_bool)
 		{
 			list(argc, argv, i);
+		}
+		else if (update_bool && i+1<argc)
+		{
+			update(argc, argv, i);
 		}
 	}
 }

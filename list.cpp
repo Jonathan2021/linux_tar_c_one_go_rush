@@ -40,7 +40,6 @@ void list(int argc, char* argv[], int pos)
 	size_t tarsize = get_size(argv[pos]) - 1024;
 	int done = 0;
 	size_t file_size;
-	;
 	for(size_t i = 0 ; i<tarsize;)
 	{
 		string file_name = clean_content(&tar_content[i], 100);
